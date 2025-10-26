@@ -36,29 +36,33 @@ class AudioService {
     if (_isInitialized) return;
 
     try {
-      // AudioPool 생성 (자주 재생되는 효과음 - 멀티볼 대응)
+      // AudioPool 생성 (빈도에 따라 채널 수 조정)
+      // brick_hit - 가장 자주 재생 (멀티볼 시)
       _brickHitPool = await FlameAudio.createPool(
         'brick_hit.wav',
-        minPlayers: 12,
-        maxPlayers: 16,
+        minPlayers: 20,
+        maxPlayers: 24,
       );
 
+      // paddle_hit - 자주 재생
       _paddleHitPool = await FlameAudio.createPool(
         'paddle_hit.wav',
-        minPlayers: 12,
-        maxPlayers: 16,
+        minPlayers: 10,
+        maxPlayers: 12,
       );
 
+      // explosion - 드물게 재생 (폭발형 브릭 제거됨)
       _explosionPool = await FlameAudio.createPool(
         'explosion.wav',
-        minPlayers: 12,
-        maxPlayers: 16,
+        minPlayers: 2,
+        maxPlayers: 4,
       );
 
+      // powerup - 드물게 재생
       _powerupPool = await FlameAudio.createPool(
         'powerup.wav',
-        minPlayers: 12,
-        maxPlayers: 16,
+        minPlayers: 2,
+        maxPlayers: 4,
       );
 
       // 단일 재생 효과음 (드물게 재생)
