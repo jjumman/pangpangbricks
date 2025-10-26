@@ -1,0 +1,33 @@
+{
+  "level": 1,
+  "name": "Welcome!",
+  "rows": 5,
+  "cols": 7,
+  "bricks": [
+    {"row": 0, "col": 0, "type": "normal"},
+    {"row": 0, "col": 1, "type": "normal"},
+    {"row": 0, "col": 2, "type": "normal"},
+    {"row": 0, "col": 3, "type": "normal"},
+    {"row": 0, "col": 4, "type": "normal"},
+    {"row": 0, "col": 5, "type": "normal"},
+    {"row": 0, "col": 6, "type": "normal"},
+
+    {"row": 1, "col": 0, "type": "normal"},
+    {"row": 1, "col": 1, "type": "normal"},
+    {"row": 1, "col": 2, "type": "normal"},
+    {"row": 1, "col": 3, "type": "hard"},
+    {"row": 1, "col": 4, "type": "normal"},
+    {"row": 1, "col": 5, "type": "normal"},
+    {"row": 1, "col": 6, "type": "normal"},
+
+    {"row": 2, "col": 1, "type": "normal"},
+    {"row": 2, "col": 2, "type": "normal"},
+    {"row": 2, "col": 3, "type": "explosive"},
+    {"row": 2, "col": 4, "type": "normal"},
+    {"row": 2, "col": 5, "type": "normal"},
+
+    {"row": 3, "col": 2, "type": "normal"},
+    {"row": 3, "col": 3, "type": "normal"},
+    {"row": 3, "col": 4, "type": "normal"}
+  ]
+}
