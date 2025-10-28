@@ -6,13 +6,30 @@ import 'package:google_fonts/google_fonts.dart';
 import '../game/breakout_game.dart';
 import '../game/game_constants.dart';
 import '../services/score_service.dart';
+import '../services/audio_service.dart';
+import '../services/music_service.dart';
 import '../models/score_record.dart';
 
 /// 게임 HUD 위젯
-class GameHUD extends StatelessWidget {
+class GameHUD extends StatefulWidget {
   final BreakoutGame game;
 
   const GameHUD({super.key, required this.game});
+
+  @override
+  State<GameHUD> createState() => _GameHUDState();
+}
+
+class _GameHUDState extends State<GameHUD> {
+  bool _isAudioEnabled = true;
+
+  void _toggleAudio() {
+    setState(() {
+      _isAudioEnabled = !_isAudioEnabled;
+      AudioService().setEnabled(_isAudioEnabled);
+      MusicService().setEnabled(_isAudioEnabled);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,27 +40,56 @@ class GameHUD extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 종료 버튼 (좌측 최상단)
-            Align(
-              alignment: Alignment.topLeft,
-              child: GestureDetector(
-                onTap: () {
-                  exit(0);
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.3),
-                    border: Border.all(color: Colors.red, width: 2),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.red,
-                    size: 18,
+            // 상단 버튼들 (종료, 오디오)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // 종료 버튼 (좌측)
+                GestureDetector(
+                  onTap: () {
+                    exit(0);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.3),
+                      border: Border.all(color: Colors.red, width: 2),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.red,
+                      size: 18,
+                    ),
                   ),
                 ),
-              ),
+                // 오디오 토글 버튼 (우측)
+                GestureDetector(
+                  onTap: _toggleAudio,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: _isAudioEnabled
+                          ? GameConstants.paddleColor.withOpacity(0.3)
+                          : Colors.grey.withOpacity(0.3),
+                      border: Border.all(
+                        color: _isAudioEnabled
+                            ? GameConstants.paddleColor
+                            : Colors.grey,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Icon(
+                      _isAudioEnabled ? Icons.volume_up : Icons.volume_off,
+                      color: _isAudioEnabled
+                          ? GameConstants.paddleColor
+                          : Colors.grey,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 4),
             // 상단 정보 - Transform으로 위로 이동
@@ -55,19 +101,19 @@ class GameHUD extends StatelessWidget {
                   // 레벨 정보
                   _buildInfoBox(
                     'LEVEL',
-                    game.currentLevel.toString(),
+                    widget.game.currentLevel.toString(),
                     GameConstants.brickNormalColor,
                   ),
                   // 점수
                   _buildInfoBox(
                     'SCORE',
-                    game.score.toString(),
+                    widget.game.score.toString(),
                     GameConstants.paddleColor,
                   ),
                   // 라이프
                   _buildInfoBox(
                     'LIVES',
-                    game.lives.toString(),
+                    widget.game.lives.toString(),
                     GameConstants.ballColor,
                   ),
                 ],
@@ -75,15 +121,15 @@ class GameHUD extends StatelessWidget {
             ),
             const Spacer(),
             // 하단 안내 메시지
-            if (game.gameState == GameState.menu)
+            if (widget.game.gameState == GameState.menu)
               _buildCenterMessage('TAP TO START'),
-            if (game.gameState == GameState.playing && !game.balls.first.isLaunched)
+            if (widget.game.gameState == GameState.playing && !widget.game.balls.first.isLaunched)
               _buildCenterMessage('TAP TO LAUNCH'),
-            if (game.gameState == GameState.paused)
+            if (widget.game.gameState == GameState.paused)
               _buildCenterMessage('PAUSED'),
-            if (game.gameState == GameState.levelComplete)
+            if (widget.game.gameState == GameState.levelComplete)
               _buildCenterMessage('LEVEL COMPLETE!\nTAP TO CONTINUE'),
-            if (game.gameState == GameState.gameOver)
+            if (widget.game.gameState == GameState.gameOver)
               _buildGameOverScreen(),
           ],
         ),
@@ -168,7 +214,7 @@ class GameHUD extends StatelessWidget {
   Widget _buildGameOverScreen() {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => game.restartGame(),
+      onTap: () => widget.game.restartGame(),
       child: Center(
         child: FutureBuilder<Map<String, dynamic>>(
         future: _getGameOverData(),
@@ -234,7 +280,7 @@ class GameHUD extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        game.score.toString(),
+                        widget.game.score.toString(),
                         style: GoogleFonts.orbitron(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
@@ -274,7 +320,7 @@ class GameHUD extends StatelessWidget {
                   topScores.length > 5 ? 5 : topScores.length,
                   (index) {
                     final record = topScores[index];
-                    final isCurrentScore = record.score == game.score &&
+                    final isCurrentScore = record.score == widget.game.score &&
                         index + 1 == rank;
 
                     return Container(
@@ -359,7 +405,7 @@ class GameHUD extends StatelessWidget {
   }
 
   Future<Map<String, dynamic>> _getGameOverData() async {
-    final rank = await ScoreService().getRank(game.score);
+    final rank = await ScoreService().getRank(widget.game.score);
     final topScores = await ScoreService().getTopScores(10);
 
     return {

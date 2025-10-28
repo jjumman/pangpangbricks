@@ -9,6 +9,7 @@ class MusicService {
 
   bool _isEnabled = true;
   bool _isPlaying = false;
+  bool _wasPlayingBeforeDisable = false;
 
   /// 초기화
   Future<void> initialize() async {
@@ -23,7 +24,14 @@ class MusicService {
   void setEnabled(bool enabled) {
     _isEnabled = enabled;
     if (!enabled) {
+      // 비활성화: 현재 재생 중이었는지 저장하고 정지
+      _wasPlayingBeforeDisable = _isPlaying;
       stopMusic();
+    } else {
+      // 활성화: 이전에 재생 중이었다면 다시 재생
+      if (_wasPlayingBeforeDisable) {
+        playGameMusic();
+      }
     }
   }
 
