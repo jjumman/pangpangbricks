@@ -103,14 +103,21 @@ class Brick extends RectangleComponent with CollisionCallbacks, HasGameReference
     canvas.drawRRect(rect, _shadowPaint);
     canvas.drawRRect(rect, _mainPaint);
 
-    // 체력에 따른 표시
-    if (hitPoints > 1) {
+    // 체력 및 특수 표시
+    String? displayText;
+    if (type == BrickType.bonus) {
+      displayText = '\$';
+    } else if (hitPoints > 1) {
+      displayText = hitPoints.toString();
+    }
+
+    if (displayText != null) {
       final textPainter = TextPainter(
         text: TextSpan(
-          text: hitPoints.toString(),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
+          text: displayText,
+          style: TextStyle(
+            color: type == BrickType.bonus ? const Color(0xFF000000) : Colors.white,
+            fontSize: type == BrickType.bonus ? 16 : 12,
             fontWeight: FontWeight.bold,
           ),
         ),

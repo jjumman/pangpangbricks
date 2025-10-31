@@ -44,7 +44,7 @@ class GameConstants {
   static const Color brickHardColor = Color(0xFFffd700);
   static const Color brickExplosiveColor = Color(0xFFff4500);
   static const Color brickMovingColor = Color(0xFF9d4edd);
-  static const Color brickBonusColor = Color(0xFFffcc00); // 황금색
+  static const Color brickBonusColor = Color(0xFFFFD700); // 진한 금색
 
   // UI 색상
   static const Color textColor = Color(0xFFffffff);
