@@ -44,6 +44,7 @@ class GameConstants {
   static const Color brickHardColor = Color(0xFFffd700);
   static const Color brickExplosiveColor = Color(0xFFff4500);
   static const Color brickMovingColor = Color(0xFF9d4edd);
+  static const Color brickBonusColor = Color(0xFFffcc00); // 황금색
 
   // UI 색상
   static const Color textColor = Color(0xFFffffff);
@@ -56,6 +57,7 @@ enum BrickType {
   hard,        // 단단 - 3타
   explosive,   // 폭발 - 주변 파괴
   moving,      // 이동형
+  bonus,       // 보너스 - 점수 3배
 }
 
 /// 파워업 타입

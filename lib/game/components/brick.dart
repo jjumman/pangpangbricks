@@ -50,6 +50,8 @@ class Brick extends RectangleComponent with CollisionCallbacks, HasGameReference
         return 1;
       case BrickType.moving:
         return 2;
+      case BrickType.bonus:
+        return 1;
     }
   }
 
@@ -146,6 +148,8 @@ class Brick extends RectangleComponent with CollisionCallbacks, HasGameReference
         return GameConstants.brickExplosiveColor;
       case BrickType.moving:
         return GameConstants.brickMovingColor;
+      case BrickType.bonus:
+        return GameConstants.brickBonusColor;
     }
   }
 

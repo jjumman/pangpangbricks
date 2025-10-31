@@ -106,13 +106,31 @@ class BreakoutGame extends FlameGame
     // 레벨에 따른 벽돌 생성 (간단한 패턴)
     final rows = 5 + (level ~/ 2).clamp(0, 5);
     final cols = 7;
+    final random = Random();
+
+    // 보너스 벽돌 위치를 미리 선정 (레벨 2부터 2-3개)
+    final Set<String> bonusPositions = {};
+    if (level >= 2) {
+      final bonusCount = 2 + (level >= 5 ? 1 : 0); // 레벨 5부터 3개
+      while (bonusPositions.length < bonusCount) {
+        final randomRow = random.nextInt(rows);
+        final randomCol = random.nextInt(cols);
+        // 첫 줄(hard 브릭)과 너무 가까운 위치는 피하기
+        if (randomRow > 0 || level < 3) {
+          bonusPositions.add('$randomRow,$randomCol');
+        }
+      }
+    }
 
     for (int row = 0; row < rows; row++) {
       for (int col = 0; col < cols; col++) {
         // 레벨에 따라 다양한 벽돌 타입 배치
         BrickType type = BrickType.normal;
 
-        if (level >= 3 && row == 0) {
+        // 보너스 벽돌인지 먼저 체크
+        if (bonusPositions.contains('$row,$col')) {
+          type = BrickType.bonus;
+        } else if (level >= 3 && row == 0) {
           type = BrickType.hard;
         } else if (level >= 5 && col % 3 == 0) {
           type = BrickType.hard; // 폭발형 대신 hard 브릭 사용
@@ -161,7 +179,14 @@ class BreakoutGame extends FlameGame
 
     // 점수 추가
     combo++;
-    score += GameConstants.scorePerBrick + (combo * GameConstants.scoreBonusCombo);
+    int baseScore = GameConstants.scorePerBrick + (combo * GameConstants.scoreBonusCombo);
+
+    // 보너스 벽돌이면 점수 3배!
+    if (brick.type == BrickType.bonus) {
+      baseScore *= 3;
+    }
+
+    score += baseScore;
 
     // 레벨 클리어 체크
     if (bricks.isEmpty) {
