@@ -3,21 +3,19 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../game_constants.dart';
+import '../breakout_game.dart';
 
 /// 패들 컴포넌트
-class Paddle extends RectangleComponent with CollisionCallbacks {
+class Paddle extends RectangleComponent with CollisionCallbacks, HasGameReference<BreakoutGame> {
   // Paint 객체 캐싱 (성능 최적화)
   late final Paint _shadowPaint;
   late final Paint _mainPaint;
   late final Paint _highlightPaint;
 
-  Paddle()
+  Paddle({Vector2? position, Vector2? size})
       : super(
-          position: Vector2(
-            GameConstants.gameWidth / 2 - GameConstants.paddleWidth / 2,
-            GameConstants.paddleY,
-          ),
-          size: Vector2(GameConstants.paddleWidth, GameConstants.paddleHeight),
+          position: position ?? Vector2.zero(),
+          size: size ?? Vector2(GameConstants.paddleWidth, GameConstants.paddleHeight),
           anchor: Anchor.topLeft,
         );
 
@@ -66,8 +64,8 @@ class Paddle extends RectangleComponent with CollisionCallbacks {
     // 화면 경계 제한
     if (position.x < 10) {
       position.x = 10;
-    } else if (position.x + size.x > GameConstants.gameWidth - 10) {
-      position.x = GameConstants.gameWidth - 10 - size.x;
+    } else if (position.x + size.x > game.gameWidth - 10) {
+      position.x = game.gameWidth - 10 - size.x;
     }
   }
 
@@ -76,10 +74,10 @@ class Paddle extends RectangleComponent with CollisionCallbacks {
     position.y += delta;
 
     // 위아래 이동 범위 제한 (블럭 밑부터 화면 아래까지)
-    if (position.y < GameConstants.paddleMinY) {
-      position.y = GameConstants.paddleMinY;
-    } else if (position.y > GameConstants.gameHeight - 30) {
-      position.y = GameConstants.gameHeight - 30;
+    if (position.y < game.paddleMinY) {
+      position.y = game.paddleMinY;
+    } else if (position.y > game.gameHeight - 30) {
+      position.y = game.gameHeight - 30;
     }
   }
 

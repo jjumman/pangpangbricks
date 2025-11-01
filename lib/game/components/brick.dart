@@ -23,20 +23,19 @@ class Brick extends RectangleComponent with CollisionCallbacks, HasGameReference
   late final Paint _shadowPaint;
   late final Paint _mainPaint;
 
+  // 그리드 위치 저장
+  final int gridX;
+  final int gridY;
+
   Brick({
-    required int gridX,
-    required int gridY,
+    required this.gridX,
+    required this.gridY,
     this.type = BrickType.normal,
   })  : hitPoints = _getInitialHitPoints(type),
         super(
-          position: Vector2(
-            20 + gridX * (GameConstants.brickWidth + GameConstants.brickSpacing),
-            GameConstants.brickOffsetY + gridY * (GameConstants.brickHeight + GameConstants.brickSpacing),
-          ),
           size: Vector2(GameConstants.brickWidth, GameConstants.brickHeight),
           anchor: Anchor.topLeft,
         ) {
-    initialX = position.x;
     isMoving = type == BrickType.moving;
   }
 
@@ -58,6 +57,17 @@ class Brick extends RectangleComponent with CollisionCallbacks, HasGameReference
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+
+    // 화면 크기 기반 위치 계산
+    final brickWidth = GameConstants.brickWidth;
+    final brickSpacing = GameConstants.brickSpacing;
+    final paddingX = (game.gameWidth - (7 * brickWidth + 6 * brickSpacing)) / 2; // 7열 기준 중앙 정렬
+
+    position = Vector2(
+      paddingX + gridX * (brickWidth + brickSpacing),
+      game.brickOffsetY + gridY * (GameConstants.brickHeight + brickSpacing),
+    );
+    initialX = position.x;
 
     // 충돌 감지 추가
     add(RectangleHitbox());

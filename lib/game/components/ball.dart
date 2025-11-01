@@ -87,7 +87,7 @@ class Ball extends CircleComponent with CollisionCallbacks, HasGameReference<Bre
     _checkWallCollisions();
 
     // 화면 아래로 떨어졌는지 체크
-    if (position.y > GameConstants.gameHeight + 50) {
+    if (position.y > game.gameHeight + 50) {
       game.removeBall(this);
     }
   }
@@ -100,8 +100,8 @@ class Ball extends CircleComponent with CollisionCallbacks, HasGameReference<Bre
       velocity.x = velocity.x.abs();
     }
     // 우측 벽
-    else if (position.x + radius > GameConstants.gameWidth - 10) {
-      position.x = GameConstants.gameWidth - 10 - radius;
+    else if (position.x + radius > game.gameWidth - 10) {
+      position.x = game.gameWidth - 10 - radius;
       velocity.x = -velocity.x.abs();
     }
 

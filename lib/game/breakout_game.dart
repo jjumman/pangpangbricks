@@ -37,6 +37,15 @@ class BreakoutGame extends FlameGame
   late RectangleComponent leftWall;
   late RectangleComponent rightWall;
 
+  // 동적 화면 크기
+  double get gameWidth => size.x;
+  double get gameHeight => size.y;
+
+  // 동적 게임 상수 (화면 크기 기반)
+  double get paddleY => gameHeight * 0.9; // 화면의 90% 아래
+  double get paddleMinY => gameHeight * 0.5; // 화면의 50% (블럭 밑)
+  double get brickOffsetY => gameHeight * 0.15; // 화면의 15% 아래부터 시작
+
   @override
   Color backgroundColor() => GameConstants.backgroundColor;
 
@@ -44,24 +53,26 @@ class BreakoutGame extends FlameGame
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // 게임 화면 크기 고정
-    camera.viewfinder.visibleGameSize = Vector2(
-      GameConstants.gameWidth,
-      GameConstants.gameHeight,
-    );
+    // 화면 크기를 디바이스 크기에 맞춤 (고정 크기 제거)
+    // camera.viewfinder.visibleGameSize 설정하지 않음 = 전체 화면 사용
 
     // 화면 경계 생성
     _createWalls();
 
-    // 패들 생성
-    paddle = Paddle();
+    // 패들 생성 (화면 크기 기반 위치)
+    paddle = Paddle(
+      position: Vector2(
+        gameWidth / 2 - GameConstants.paddleWidth / 2,
+        paddleY,
+      ),
+    );
     await add(paddle);
 
     // 초기 공 생성
     final ball = Ball(
       position: Vector2(
-        GameConstants.gameWidth / 2,
-        GameConstants.paddleY - 30,
+        gameWidth / 2,
+        paddleY - 30,
       ),
     );
     balls.add(ball);
@@ -73,7 +84,7 @@ class BreakoutGame extends FlameGame
     // 상단 벽
     topWall = RectangleComponent(
       position: Vector2(0, 0),
-      size: Vector2(GameConstants.gameWidth, 10),
+      size: Vector2(gameWidth, 10),
       paint: Paint()..color = Colors.transparent,
     );
     add(topWall);
@@ -81,15 +92,15 @@ class BreakoutGame extends FlameGame
     // 좌측 벽
     leftWall = RectangleComponent(
       position: Vector2(0, 0),
-      size: Vector2(10, GameConstants.gameHeight),
+      size: Vector2(10, gameHeight),
       paint: Paint()..color = Colors.transparent,
     );
     add(leftWall);
 
     // 우측 벽
     rightWall = RectangleComponent(
-      position: Vector2(GameConstants.gameWidth - 10, 0),
-      size: Vector2(10, GameConstants.gameHeight),
+      position: Vector2(gameWidth - 10, 0),
+      size: Vector2(10, gameHeight),
       paint: Paint()..color = Colors.transparent,
     );
     add(rightWall);
@@ -221,8 +232,8 @@ class BreakoutGame extends FlameGame
   void resetBall() {
     final ball = Ball(
       position: Vector2(
-        GameConstants.gameWidth / 2,
-        GameConstants.paddleY - 30,
+        gameWidth / 2,
+        paddleY - 30,
       ),
     );
     balls.add(ball);

@@ -12,7 +12,7 @@ class GameConstants {
   static const double paddleWidth = 100.0;
   static const double paddleHeight = 15.0;
   static const double paddleSpeed = 500.0;
-  static const double paddleY = 750.0; // 더 아래로 이동
+  static const double paddleY = 850.0; // 더 아래로 이동
   static const double paddleMinY = 400.0; // 블럭 밑 (위아래 이동 범위)
 
   // 공 설정
