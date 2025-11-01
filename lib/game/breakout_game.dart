@@ -23,6 +23,7 @@ class BreakoutGame extends FlameGame
   // 게임 상태
   GameState gameState = GameState.menu;
   int currentLevel = 1;
+  int currentCols = 7; // 현재 블록 열 개수 (동적으로 계산됨)
   int score = 0;
   int lives = GameConstants.initialLives;
   int combo = 0;
@@ -114,9 +115,22 @@ class BreakoutGame extends FlameGame
     }
     bricks.clear();
 
-    // 레벨에 따른 벽돌 생성 (간단한 패턴)
-    final rows = 5 + (level ~/ 2).clamp(0, 5);
-    final cols = 7;
+    // 화면 크기에 따라 동적으로 행/열 개수 조정
+
+    // 열 개수: 블록 크기(45) + 간격(4) = 49, 양쪽 여백 20씩 고려
+    // iPhone: 7-8열, iPad: 15-16열
+    final cols = ((gameWidth - 40) / (GameConstants.brickWidth + GameConstants.brickSpacing)).floor().clamp(7, 20);
+    currentCols = cols; // 현재 열 개수 저장 (brick.dart에서 사용)
+
+    // 행 개수: 화면 높이에 따라 동적 조정
+    // 블록이 차지할 수 있는 공간: 화면의 약 35% (시작 15% ~ 50%)
+    // 각 행 높이: brickHeight(20) + brickSpacing(4) = 24
+    final availableHeight = gameHeight * 0.35;
+    final maxRows = (availableHeight / (GameConstants.brickHeight + GameConstants.brickSpacing)).floor();
+    final baseRows = 5 + (level ~/ 2).clamp(0, 5); // 레벨에 따른 기본 행
+    final rows = baseRows.clamp(5, maxRows); // 최대 행 수 제한
+    // iPhone: 약 5-10행, iPad: 약 5-15행
+
     final random = Random();
 
     // 보너스 벽돌 위치를 미리 선정 (레벨 2부터 2-3개)

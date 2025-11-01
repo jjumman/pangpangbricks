@@ -58,10 +58,11 @@ class Brick extends RectangleComponent with CollisionCallbacks, HasGameReference
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // 화면 크기 기반 위치 계산
+    // 화면 크기 기반 위치 계산 (동적 열 개수 지원)
     final brickWidth = GameConstants.brickWidth;
     final brickSpacing = GameConstants.brickSpacing;
-    final paddingX = (game.gameWidth - (7 * brickWidth + 6 * brickSpacing)) / 2; // 7열 기준 중앙 정렬
+    final cols = game.currentCols; // 동적 열 개수
+    final paddingX = (game.gameWidth - (cols * brickWidth + (cols - 1) * brickSpacing)) / 2; // 중앙 정렬
 
     position = Vector2(
       paddingX + gridX * (brickWidth + brickSpacing),

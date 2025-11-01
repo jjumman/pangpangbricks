@@ -33,13 +33,17 @@ class _GameHUDState extends State<GameHUD> {
 
   @override
   Widget build(BuildContext context) {
+    // 화면 크기에 따라 상단 패딩 조정 (iPad에서 더 큰 여백)
+    final screenHeight = MediaQuery.of(context).size.height;
+    final topPadding = screenHeight > 1000 ? 24.0 : 12.0; // iPad: 24, iPhone: 12
+
     return SafeArea(
       minimum: EdgeInsets.zero, // SafeArea 최소값 제거
       child: Stack(
         children: [
           // HUD 레이어
           Padding(
-            padding: const EdgeInsets.only(top: 0, left: 12.0, right: 12.0, bottom: 0),
+            padding: EdgeInsets.only(top: topPadding, left: 12.0, right: 12.0, bottom: 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

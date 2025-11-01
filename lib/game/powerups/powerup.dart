@@ -36,8 +36,8 @@ abstract class PowerUp extends RectangleComponent
     // 아래로 떨어짐
     position += velocity * dt;
 
-    // 화면 밖으로 나가면 제거
-    if (position.y > GameConstants.gameHeight + 50) {
+    // 화면 밖으로 나가면 제거 (동적 화면 크기 사용)
+    if (position.y > game.gameHeight + 50) {
       removeFromParent();
     }
   }
