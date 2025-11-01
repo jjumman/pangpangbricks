@@ -42,7 +42,7 @@ class BreakoutGame extends FlameGame
   double get gameHeight => size.y;
 
   // 동적 게임 상수 (화면 크기 기반)
-  double get paddleY => gameHeight * 0.9; // 화면의 90% 아래
+  double get paddleY => gameHeight - GameConstants.paddleBottomMargin; // 화면 하단에서 마진만큼 위
   double get paddleMinY => gameHeight * 0.5; // 화면의 50% (블럭 밑)
   double get brickOffsetY => gameHeight * 0.15; // 화면의 15% 아래부터 시작
 
@@ -331,8 +331,10 @@ class BreakoutGame extends FlameGame
     if (gameState == GameState.playing) {
       // 좌우 이동
       paddle.move(event.localDelta.x);
-      // 위아래 이동
-      paddle.moveVertical(event.localDelta.y);
+      // 위아래 이동 (플래그로 활성화된 경우에만)
+      if (GameConstants.enableVerticalPaddleMovement) {
+        paddle.moveVertical(event.localDelta.y);
+      }
     }
   }
 
