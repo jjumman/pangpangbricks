@@ -12,7 +12,7 @@ class GameConstants {
   static const double paddleWidth = 100.0;
   static const double paddleHeight = 15.0;
   static const double paddleSpeed = 500.0;
-  static const double paddleBottomMargin = 120.0; // 화면 하단에서 패들까지의 마진
+  static const double paddleBottomMargin = 100.0; // 화면 하단에서 패들까지의 마진
   static const bool enableVerticalPaddleMovement = false; // 패들 위아래 이동 활성화 플래그
   static const double paddleMinY = 400.0; // 블럭 밑 (위아래 이동 범위)
 
