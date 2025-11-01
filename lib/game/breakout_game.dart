@@ -318,7 +318,10 @@ class BreakoutGame extends FlameGame
   @override
   void onDragUpdate(DragUpdateEvent event) {
     if (gameState == GameState.playing) {
+      // 좌우 이동
       paddle.move(event.localDelta.x);
+      // 위아래 이동
+      paddle.moveVertical(event.localDelta.y);
     }
   }
 

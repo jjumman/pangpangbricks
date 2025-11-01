@@ -59,7 +59,7 @@ class Paddle extends RectangleComponent with CollisionCallbacks {
     canvas.drawRRect(highlightRect, _highlightPaint);
   }
 
-  /// 패들 이동
+  /// 패들 좌우 이동
   void move(double delta) {
     position.x += delta;
 
@@ -68,6 +68,18 @@ class Paddle extends RectangleComponent with CollisionCallbacks {
       position.x = 10;
     } else if (position.x + size.x > GameConstants.gameWidth - 10) {
       position.x = GameConstants.gameWidth - 10 - size.x;
+    }
+  }
+
+  /// 패들 위아래 이동
+  void moveVertical(double delta) {
+    position.y += delta;
+
+    // 위아래 이동 범위 제한 (블럭 밑부터 화면 아래까지)
+    if (position.y < GameConstants.paddleMinY) {
+      position.y = GameConstants.paddleMinY;
+    } else if (position.y > GameConstants.gameHeight - 30) {
+      position.y = GameConstants.gameHeight - 30;
     }
   }
 

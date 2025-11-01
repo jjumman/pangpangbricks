@@ -12,12 +12,18 @@ class GameConstants {
   static const double paddleWidth = 100.0;
   static const double paddleHeight = 15.0;
   static const double paddleSpeed = 500.0;
-  static const double paddleY = 720.0;
+  static const double paddleY = 750.0; // 더 아래로 이동
+  static const double paddleMinY = 400.0; // 블럭 밑 (위아래 이동 범위)
 
   // 공 설정
   static const double ballRadius = 8.0;
   static const double ballInitialSpeed = 300.0;
-  static const double ballMaxSpeed = 500.0;
+  static const double ballMaxSpeed = 1000.0; // 최대 속도 증가
+  static const double ballSpeedLevel1 = 400.0; // 1개 관통
+  static const double ballSpeedLevel2 = 550.0; // 2개 관통
+  static const double ballSpeedLevel3 = 700.0; // 3개 관통
+  static const double ballSpeedLevel4 = 850.0; // 4개 관통
+  static const double ballSpeedIncrease = 30.0; // 패들 타격 시 증가량
 
   // 벽돌 설정
   static const double brickWidth = 45.0;

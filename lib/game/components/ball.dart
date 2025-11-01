@@ -14,6 +14,7 @@ import '../../services/haptic_service.dart';
 class Ball extends CircleComponent with CollisionCallbacks, HasGameReference<BreakoutGame> {
   Vector2 velocity = Vector2.zero();
   bool isLaunched = false;
+  int penetrationCount = 0; // 현재 프레임에서 관통한 벽돌 수
 
   // Paint 객체 캐싱 (성능 최적화)
   late final Paint _shadowPaint;
@@ -63,17 +64,20 @@ class Ball extends CircleComponent with CollisionCallbacks, HasGameReference<Bre
   void update(double dt) {
     super.update(dt);
 
+    // 매 프레임 관통 카운트 리셋
+    penetrationCount = 0;
+
     if (!isLaunched) {
       // 발사되지 않았으면 패들 위에 유지
       position.x = game.paddle.position.x + game.paddle.size.x / 2;
-      position.y = GameConstants.paddleY - 30;
+      position.y = game.paddle.position.y - 30;
       return;
     }
 
     // 공 이동
     position += velocity * dt;
 
-    // 속도 제한 (성능 최적화)
+    // 속도 제한
     final speed = velocity.length;
     if (speed > GameConstants.ballMaxSpeed) {
       velocity = velocity.normalized() * GameConstants.ballMaxSpeed;
@@ -151,24 +155,34 @@ class Ball extends CircleComponent with CollisionCallbacks, HasGameReference<Bre
       final hitPosition = position.x - paddleCenter;
       final normalizedHit = hitPosition / (paddle.size.x / 2);
 
-      // 속도 조정
+      // 현재 속도 저장
+      final currentSpeed = velocity.length;
+
+      // 속도 조정 - 패들 타격 시마다 속도 증가
       velocity.y = -velocity.y.abs();
       velocity.x = normalizedHit * GameConstants.ballInitialSpeed;
 
-      // 속도 제한
-      final speed = velocity.length;
-      if (speed > GameConstants.ballMaxSpeed) {
-        velocity = velocity.normalized() * GameConstants.ballMaxSpeed;
-      } else if (speed < GameConstants.ballInitialSpeed * 0.8) {
+      // 속도 증가 (강도 반영)
+      final newSpeed = min(currentSpeed + GameConstants.ballSpeedIncrease, GameConstants.ballMaxSpeed);
+      velocity = velocity.normalized() * newSpeed;
+
+      // 최소 속도 보장
+      if (newSpeed < GameConstants.ballInitialSpeed * 0.8) {
         velocity = velocity.normalized() * GameConstants.ballInitialSpeed;
       }
 
       // 위치 조정 (패들 안에 끼지 않도록)
       position.y = paddle.position.y - radius - 1;
 
-      // 사운드 & 햅틱 피드백
+      // 사운드 & 햅틱 피드백 (속도에 따라 다른 햅틱)
       AudioService().playPaddleHit();
-      HapticService().light();
+      if (newSpeed >= GameConstants.ballSpeedLevel3) {
+        HapticService().heavy();
+      } else if (newSpeed >= GameConstants.ballSpeedLevel1) {
+        HapticService().medium();
+      } else {
+        HapticService().light();
+      }
     }
   }
 
@@ -176,28 +190,51 @@ class Ball extends CircleComponent with CollisionCallbacks, HasGameReference<Bre
   void _handleBrickCollision(Brick brick, Set<Vector2> intersectionPoints) {
     if (intersectionPoints.isEmpty) return;
 
-    final intersectionPoint = intersectionPoints.first;
+    // 현재 속도 계산
+    final currentSpeed = velocity.length;
 
-    // 충돌 방향 계산
-    final brickCenter = brick.position + brick.size / 2;
-
-    // 수평/수직 충돌 판정
-    final dx = (intersectionPoint.x - brickCenter.x).abs();
-    final dy = (intersectionPoint.y - brickCenter.y).abs();
-
-    if (dx > dy) {
-      // 좌우 충돌
-      velocity.x = -velocity.x;
-    } else {
-      // 상하 충돌
-      velocity.y = -velocity.y;
+    // 속도에 따른 최대 관통 개수 계산
+    int maxPenetration = 0;
+    if (currentSpeed >= GameConstants.ballSpeedLevel4) {
+      maxPenetration = 4;
+    } else if (currentSpeed >= GameConstants.ballSpeedLevel3) {
+      maxPenetration = 3;
+    } else if (currentSpeed >= GameConstants.ballSpeedLevel2) {
+      maxPenetration = 2;
+    } else if (currentSpeed >= GameConstants.ballSpeedLevel1) {
+      maxPenetration = 1;
     }
 
     // 벽돌 피해 입히기
     brick.takeDamage();
+    penetrationCount++;
+
+    // 관통 가능 개수를 초과하면 반사
+    if (penetrationCount > maxPenetration) {
+      final intersectionPoint = intersectionPoints.first;
+      final brickCenter = brick.position + brick.size / 2;
+
+      // 수평/수직 충돌 판정
+      final dx = (intersectionPoint.x - brickCenter.x).abs();
+      final dy = (intersectionPoint.y - brickCenter.y).abs();
+
+      if (dx > dy) {
+        // 좌우 충돌
+        velocity.x = -velocity.x;
+      } else {
+        // 상하 충돌
+        velocity.y = -velocity.y;
+      }
+    }
 
     // 사운드 & 햅틱 피드백
     AudioService().playBrickBreak();
-    HapticService().medium();
+    if (maxPenetration >= 3) {
+      HapticService().heavy();
+    } else if (maxPenetration >= 1) {
+      HapticService().medium();
+    } else {
+      HapticService().light();
+    }
   }
 }
