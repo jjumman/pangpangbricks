@@ -35,104 +35,112 @@ class _GameHUDState extends State<GameHUD> {
   Widget build(BuildContext context) {
     return SafeArea(
       minimum: EdgeInsets.zero, // SafeArea 최소값 제거
-      child: Padding(
-        padding: const EdgeInsets.only(top: 0, left: 12.0, right: 12.0, bottom: 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 상단 버튼들 (종료, 오디오)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
+        children: [
+          // HUD 레이어
+          Padding(
+            padding: const EdgeInsets.only(top: 0, left: 12.0, right: 12.0, bottom: 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 종료 버튼 (좌측)
-                GestureDetector(
-                  onTap: () {
-                    exit(0);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.3),
-                      border: Border.all(color: Colors.red, width: 2),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.red,
-                      size: 18,
-                    ),
-                  ),
-                ),
-                // 오디오 토글 버튼 (우측)
-                GestureDetector(
-                  onTap: _toggleAudio,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: _isAudioEnabled
-                          ? GameConstants.paddleColor.withOpacity(0.3)
-                          : Colors.grey.withOpacity(0.3),
-                      border: Border.all(
-                        color: _isAudioEnabled
-                            ? GameConstants.paddleColor
-                            : Colors.grey,
-                        width: 2,
+                // 상단 버튼들 (종료, 오디오)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // 종료 버튼 (좌측)
+                    GestureDetector(
+                      onTap: () {
+                        exit(0);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.3),
+                          border: Border.all(color: Colors.red, width: 2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.red,
+                          size: 18,
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Icon(
-                      _isAudioEnabled ? Icons.volume_up : Icons.volume_off,
-                      color: _isAudioEnabled
-                          ? GameConstants.paddleColor
-                          : Colors.grey,
-                      size: 18,
+                    // 오디오 토글 버튼 (우측)
+                    GestureDetector(
+                      onTap: _toggleAudio,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: _isAudioEnabled
+                              ? GameConstants.paddleColor.withOpacity(0.3)
+                              : Colors.grey.withOpacity(0.3),
+                          border: Border.all(
+                            color: _isAudioEnabled
+                                ? GameConstants.paddleColor
+                                : Colors.grey,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Icon(
+                          _isAudioEnabled ? Icons.volume_up : Icons.volume_off,
+                          color: _isAudioEnabled
+                              ? GameConstants.paddleColor
+                              : Colors.grey,
+                          size: 18,
+                        ),
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                // 상단 정보 - Transform으로 위로 이동
+                Transform.translate(
+                  offset: const Offset(0, 4), // 4픽셀 위로 이동
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 레벨 정보
+                      _buildInfoBox(
+                        'LEVEL',
+                        widget.game.currentLevel.toString(),
+                        GameConstants.brickNormalColor,
+                      ),
+                      // 점수
+                      _buildInfoBox(
+                        'SCORE',
+                        widget.game.score.toString(),
+                        GameConstants.paddleColor,
+                      ),
+                      // 라이프
+                      _buildInfoBox(
+                        'LIVES',
+                        widget.game.lives.toString(),
+                        GameConstants.ballColor,
+                      ),
+                    ],
                   ),
                 ),
+                const Spacer(),
+                // 하단 안내 메시지
+                if (widget.game.gameState == GameState.menu)
+                  _buildCenterMessage('TAP TO START'),
+                if (widget.game.gameState == GameState.playing && !widget.game.balls.first.isLaunched)
+                  _buildCenterMessage('TAP TO LAUNCH'),
+                if (widget.game.gameState == GameState.paused)
+                  _buildCenterMessage('PAUSED'),
+                if (widget.game.gameState == GameState.levelComplete)
+                  _buildCenterMessage('LEVEL COMPLETE!\nTAP TO CONTINUE'),
               ],
             ),
-            const SizedBox(height: 4),
-            // 상단 정보 - Transform으로 위로 이동
-            Transform.translate(
-              offset: const Offset(0, 4), // 4픽셀 위로 이동
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // 레벨 정보
-                  _buildInfoBox(
-                    'LEVEL',
-                    widget.game.currentLevel.toString(),
-                    GameConstants.brickNormalColor,
-                  ),
-                  // 점수
-                  _buildInfoBox(
-                    'SCORE',
-                    widget.game.score.toString(),
-                    GameConstants.paddleColor,
-                  ),
-                  // 라이프
-                  _buildInfoBox(
-                    'LIVES',
-                    widget.game.lives.toString(),
-                    GameConstants.ballColor,
-                  ),
-                ],
-              ),
+          ),
+          // 게임 오버 화면 (중앙 오버레이)
+          if (widget.game.gameState == GameState.gameOver)
+            Center(
+              child: _buildGameOverScreen(),
             ),
-            const Spacer(),
-            // 하단 안내 메시지
-            if (widget.game.gameState == GameState.menu)
-              _buildCenterMessage('TAP TO START'),
-            if (widget.game.gameState == GameState.playing && !widget.game.balls.first.isLaunched)
-              _buildCenterMessage('TAP TO LAUNCH'),
-            if (widget.game.gameState == GameState.paused)
-              _buildCenterMessage('PAUSED'),
-            if (widget.game.gameState == GameState.levelComplete)
-              _buildCenterMessage('LEVEL COMPLETE!\nTAP TO CONTINUE'),
-            if (widget.game.gameState == GameState.gameOver)
-              _buildGameOverScreen(),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -215,8 +223,7 @@ class _GameHUDState extends State<GameHUD> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.game.restartGame(),
-      child: Center(
-        child: FutureBuilder<Map<String, dynamic>>(
+      child: FutureBuilder<Map<String, dynamic>>(
         future: _getGameOverData(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -399,7 +406,6 @@ class _GameHUDState extends State<GameHUD> {
             ),
           );
         },
-        ),
       ),
     );
   }
